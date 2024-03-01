@@ -17,7 +17,8 @@
 		},
 		"intermediate_mappings": "net.fabricmc:intermediary",
 		"entrypoints": {
-			"init": "com.keko.lunastellar.LunaStellar"
+			"init": "com.keko.lunastellar.LunaStellar",
+			"client_init" : "com.keko.lunastellar.LunaStellarClient"
 		},
 		"depends": [
 			{
@@ -35,4 +36,5 @@
 		]
 	},
 	"mixin": "lunastellar.mixins.json"
+
 }
