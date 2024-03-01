@@ -1,5 +1,6 @@
 package com.keko.lunastellar;
 
+import com.keko.lunastellar.item.ModItems;
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
 import org.slf4j.Logger;
@@ -12,5 +13,6 @@ public class LunaStellar implements ModInitializer {
 	@Override
 	public void onInitialize(ModContainer mod) {
 		LOGGER.info("Bow before the stars (Cringe af log ngl)", mod.metadata().name());
+		ModItems.registerModitems();
 	}
 }
