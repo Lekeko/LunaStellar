@@ -13,6 +13,6 @@ public class ModEntities {
 
 	public static final EntityType<CrystalPebbleProjectile> CRYSTAL_PEBBLE_PROJECTILE = Registry.register(Registry.ENTITY_TYPE,
 		new Identifier(LunaStellar.MOD_ID, "crystal_pebble"), QuiltEntityTypeBuilder.<CrystalPebbleProjectile>create(SpawnGroup.MISC, CrystalPebbleProjectile::new)
-			.setDimensions(EntityDimensions.fixed(0.2f, 0.2f)).build());
+			.setDimensions(EntityDimensions.fixed(0.1f, 0.1f)).build());
 
 }

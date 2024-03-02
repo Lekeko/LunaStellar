@@ -2,6 +2,9 @@ package com.keko.lunastellar.entities;
 
 import com.keko.lunastellar.entities.ModEntities;
 import com.keko.lunastellar.item.ModItems;
+import com.sammy.lodestone.setup.LodestoneParticles;
+import com.sammy.lodestone.systems.rendering.particle.ParticleBuilders;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -23,6 +26,9 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
 
+import java.awt.*;
+import java.util.Random;
+
 public class CrystalPebbleProjectile extends ThrownItemEntity {
 	public CrystalPebbleProjectile(EntityType<? extends ThrownItemEntity> entityType, World world) {
 		super(entityType, world);
@@ -31,23 +37,6 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 	public CrystalPebbleProjectile(LivingEntity livingEntity, World world){
 		super(ModEntities.CRYSTAL_PEBBLE_PROJECTILE, livingEntity, world);
 	}
-
-	private ParticleEffect getParticleParameters() {
-		ItemStack itemStack = this.getItem();
-		return (ParticleEffect)(itemStack.isEmpty() ? ParticleTypes.ITEM : new ItemStackParticleEffect(ParticleTypes.ITEM, itemStack));
-	}
-
-	public void handleStatus(byte status) {
-		if (status == 3) {
-			ParticleEffect particleEffect = this.getParticleParameters();
-
-			for(int i = 0; i < 8; ++i) {
-				this.world.addParticle(particleEffect, this.getX(), this.getY(), this.getZ(), 0.0, 0.0, 0.0);
-			}
-		}
-
-	}
-
 
 	@Override
 	protected Item getDefaultItem() {
@@ -62,6 +51,7 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 	@Override
 	protected void onEntityHit(EntityHitResult entityHitResult) {
 		super.onEntityHit(entityHitResult);
+		createParticleEffect();
 		Entity entity = entityHitResult.getEntity();
 		float damage = 4.5f;
 		entity.damage(DamageSource.thrownProjectile(this, this.getOwner()), damage);
@@ -72,6 +62,7 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 		if (!this.getWorld().isClient){
 			this.getWorld().sendEntityStatus(this, (byte) 3);
 		}
+		createParticleEffect();
 		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(),
 			SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK, SoundCategory.NEUTRAL,
 			0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
@@ -79,13 +70,47 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 		super.onBlockHit(blockHitResult);
 	}
 
+	private void createParticleEffect() {
+		Random random = new Random();
+		Color startingColor = new Color(179, 85, 255, 255);
+		Color endingColor = new Color(42, 0, 255, 163);
+		for (int i = 0; i < 3; i++)
+		ParticleBuilders.create(LodestoneParticles.SMOKE_PARTICLE)
+			.setScale(0, 1)
+			.setColor(startingColor, endingColor)
+			.setLifetime(5)
+			.addMotion(0, 0.01f, 0)
+			.enableNoClip()
+			.spawn(this.getWorld(),this.getX(), this.getY(), this.getZ());
+
+		this.discard();
+	}
+
+	@Override
+	public void onLanding() {
+		super.onLanding();
+	}
+
+	@Override
+	public void onRemoved() {
+		createParticleEffect();
+
+		super.onRemoved();
+	}
+
+
+
+
+
 	@Override
 	protected void onCollision(HitResult hitResult) {
-		super.onCollision(hitResult);
+
 		if (!this.world.isClient) {
 
 			this.world.sendEntityStatus(this, (byte)3);
-			this.discard();
+
 		}
+		super.onCollision(hitResult);
 	}
+
 }
