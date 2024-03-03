@@ -62,21 +62,8 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 		}
 	}
 
-	/*@Override
-	protected void onBlockHit(BlockHitResult blockHitResult) {
-		if (!this.getWorld().isClient){
-			this.getWorld().sendEntityStatus(this, (byte) 3);
-		}
-		createParticleEffect();
-		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(),
-			SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK, SoundCategory.NEUTRAL,
-			0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-
-		super.onBlockHit(blockHitResult);
-	}*/
 
 	private void createParticleEffect() {
-		Random random = new Random();
 		Color startingColor = new Color(179, 85, 255, 255);
 		Color endingColor = new Color(42, 0, 255, 163);
 		for (int i = 0; i < 3; i++)

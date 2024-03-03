@@ -1,5 +1,6 @@
 package com.keko.lunastellar;
 
+import com.keko.lunastellar.customParticles.StarExplosion;
 import com.keko.lunastellar.item.ModItems;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.minecraft.block.Blocks;
@@ -45,5 +46,7 @@ public class LunaStellar implements ModInitializer {
 
 		LOGGER.info("Bow before the stars (Cringe af log ngl)", mod.metadata().name());
 		ModItems.registerModitems();
+		StarExplosion.init();
+		StarExplosion.registerFactories();
 	}
 }
