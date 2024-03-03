@@ -30,6 +30,7 @@ import java.awt.*;
 import java.util.Random;
 
 public class CrystalPebbleProjectile extends ThrownItemEntity {
+	private final float damage = 4.5f;
 	public CrystalPebbleProjectile(EntityType<? extends ThrownItemEntity> entityType, World world) {
 		super(entityType, world);
 	}
@@ -51,13 +52,17 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 	@Override
 	protected void onEntityHit(EntityHitResult entityHitResult) {
 		super.onEntityHit(entityHitResult);
-		createParticleEffect();
-		Entity entity = entityHitResult.getEntity();
-		float damage = 4.5f;
-		entity.damage(DamageSource.thrownProjectile(this, this.getOwner()), damage);
+		if (!(entityHitResult.getEntity() == this.getOwner())) {
+			System.out.println("cuaie");
+			Entity entity = entityHitResult.getEntity();
+			entity.damage(DamageSource.thrownProjectile(this, this.getOwner()), damage);
+			world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(),
+				SoundEvents.BLOCK_AMETHYST_BLOCK_FALL, SoundCategory.NEUTRAL,
+				0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+		}
 	}
 
-	@Override
+	/*@Override
 	protected void onBlockHit(BlockHitResult blockHitResult) {
 		if (!this.getWorld().isClient){
 			this.getWorld().sendEntityStatus(this, (byte) 3);
@@ -68,14 +73,14 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 			0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
 
 		super.onBlockHit(blockHitResult);
-	}
+	}*/
 
 	private void createParticleEffect() {
 		Random random = new Random();
 		Color startingColor = new Color(179, 85, 255, 255);
 		Color endingColor = new Color(42, 0, 255, 163);
 		for (int i = 0; i < 3; i++)
-		ParticleBuilders.create(LodestoneParticles.SMOKE_PARTICLE)
+			ParticleBuilders.create(LodestoneParticles.SMOKE_PARTICLE)
 			.setScale(0, 1)
 			.setColor(startingColor, endingColor)
 			.setLifetime(5)
@@ -83,14 +88,7 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 			.enableNoClip()
 			.spawn(this.getWorld(),this.getX(), this.getY(), this.getZ());
 
-		this.discard();
 	}
-
-	@Override
-	public void onLanding() {
-		super.onLanding();
-	}
-
 	@Override
 	public void onRemoved() {
 		createParticleEffect();
@@ -98,19 +96,12 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 		super.onRemoved();
 	}
 
-
-
-
-
 	@Override
 	protected void onCollision(HitResult hitResult) {
-
-		if (!this.world.isClient) {
-
-			this.world.sendEntityStatus(this, (byte)3);
-
-		}
 		super.onCollision(hitResult);
+		if (!this.world.isClient) {
+			this.world.sendEntityStatus(this, (byte)3);
+			this.discard();
+		}
 	}
-
 }
