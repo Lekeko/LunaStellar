@@ -52,17 +52,21 @@ public class FallingStar extends ThrownItemEntity {
 
 	@Override
 	public void onRemoved() {
+		Random random1 = new Random();
 		Color startingColor = new Color(255, 85, 159, 50);
 		Color endingColor = new Color(255, 255, 255, 60);
 		BlockPos pos = new BlockPos(getX(), getY(), getZ());
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 27; i++){
+			pos = new BlockPos(getX() + random1.nextInt(2) - 1 , getY() + random1.nextInt(2) - 1 , getZ() + random1.nextInt(2) - 1 );
 			ParticleBuilders.create(StarExplosion.STAR_EXPLOSION)
-				.setScale(6, 10, 20)
+				.setScale(2, 6, (float)(10 - i * 0.5))
 				.setColor(startingColor, endingColor)
-				.setLifetime(50)
+				.setLifetime(25)
+				.setSpin(i % 2 == 0 ? 1 : -1)
+				.setMotion(0, 0.1f , 0)
 				.enableNoClip()
-				.evenlySpawnAtAlignedEdges(world, pos , world.getBlockState(pos), 5)
-				.spawnAtEdges(this.getWorld(), pos);
+				.evenlySpawnAtAlignedEdges(world, pos , world.getBlockState(pos), 2)
+				.spawnAtEdges(this.getWorld(), pos);}
 
 		super.onRemoved();
 	}
