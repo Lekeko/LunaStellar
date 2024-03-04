@@ -1,51 +1,69 @@
 package com.keko.lunastellar.item;
 
-import com.keko.lunastellar.entities.CrystalPebbleProjectile;
 import com.keko.lunastellar.entities.FallingStar;
-import com.sammy.lodestone.setup.LodestoneParticles;
-import com.sammy.lodestone.systems.rendering.particle.ParticleBuilders;
-import net.minecraft.block.AirBlock;
+import com.sammy.lodestone.network.screenshake.PositionedScreenshakePacket;
+import com.sammy.lodestone.systems.rendering.particle.Easing;
+import io.netty.buffer.Unpooled;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.stat.Stats;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Position;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
+import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
 
-import java.awt.*;
 import java.util.Random;
 
 public class StarFaller extends Item {
 	//cooldown in seconds!
-	private int cooldown = 12;
+	private int cooldown = 10;
 	int distance = 70;
 
 
 	public StarFaller(Settings settings) {
-		super(settings);
+		super(settings.maxCount(1));
 	}
+
+	public static void CreateShake(MinecraftServer s, PlayerEntity player, Position pos){
+		float intensity = (float) (Math.abs(player.getX() - pos.getX()) + Math.abs(player.getY() - pos.getY())  + Math.abs(player.getZ() - pos.getZ()));
+
+		if (intensity < 200){
+			intensity = (float)(200 - intensity);
+		}else intensity = 0f;
+		float finalIntensity = intensity;
+		s.getOverworld().getPlayers(players -> players.getWorld().isChunkLoaded(new ChunkPos(player.getBlockPos()).x, new ChunkPos(player.getBlockPos()).z)).forEach(players -> {
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			new PositionedScreenshakePacket(34, Vec3d.ofCenter(player.getBlockPos()),
+				80f, 0.3f, 55f, Easing.CIRC_IN).setIntensity(finalIntensity / 40).setEasing(Easing.CIRC_OUT, Easing.CIRC_IN).write(buf);
+			ServerPlayNetworking.send(players, PositionedScreenshakePacket.ID, buf);
+
+		});
+
+
+	}
+
+
 
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		ItemStack itemStack = user.getStackInHand(hand);
 		BlockPos targetedBlock ;
 		BlockState blockState;
-		//user.getItemCooldownManager().set(this, 20 * cooldown);
+		user.getItemCooldownManager().set(this, 20 * cooldown);
 			Vec3d direction = user.getRotationVec(1.0F);
 			targetedBlock = rayChastHitBlock(world, user, direction, distance);
 			blockState = world.getBlockState(targetedBlock);
+		//world.playSound((PlayerEntity)null, user.getX(), user.getY(), user.getZ(), SoundEvents.BLOCK_BEACON_ACTIVATE, SoundCategory.NEUTRAL, 1.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+		world.playSound((PlayerEntity)null, user.getX(), user.getY(), user.getZ(), SoundEvents.BLOCK_BEACON_POWER_SELECT, SoundCategory.NEUTRAL, 1.5F, 1.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
 			if (blockState.isOf(Blocks.AIR)){
 				for (int i = 1; i < 200; i++){
 					assert targetedBlock != null;
@@ -54,10 +72,16 @@ public class StarFaller extends Item {
 						targetedBlock.getZ()));
 					if (!blockState.isOf(Blocks.AIR)){
 						doTheThing(world, user,new BlockPos( targetedBlock.getX(), targetedBlock.getY() - i, targetedBlock.getZ()) );
+						doTheThing(world, user,new BlockPos( targetedBlock.getX(), targetedBlock.getY() - i, targetedBlock.getZ()) );
+						doTheThing(world, user,new BlockPos( targetedBlock.getX(), targetedBlock.getY() - i, targetedBlock.getZ()) );
+						doTheThing(world, user,new BlockPos( targetedBlock.getX(), targetedBlock.getY() - i, targetedBlock.getZ()) );
 						break;
 					}
 				}
 			}else {
+				doTheThing(world, user, targetedBlock);
+				doTheThing(world, user, targetedBlock);
+				doTheThing(world, user, targetedBlock);
 				doTheThing(world, user, targetedBlock);
 			}
 
@@ -84,6 +108,8 @@ public class StarFaller extends Item {
 
 		}
 	}
+
+
 
 
 

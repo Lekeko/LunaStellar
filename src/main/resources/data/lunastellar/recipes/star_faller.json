@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#S#",
+    "LNL",
+    "#L#"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "S": {
+      "item": "minecraft:soul_lantern"
+    },
+    "L": {
+      "item": "lunastellar:crystal_pebble"
+    },
+    "N": {
+      "item": "minecraft:nether_star"
+    }
+  },
+  "result": {
+    "item" : "lunastellar:star_faller"
+  },
+  "group": "misc"
+}
+
