@@ -26,6 +26,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.explosion.ExplosionBehavior;
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
 
 import java.awt.*;
@@ -68,7 +69,9 @@ public class FallingStar extends ThrownItemEntity {
 			System.out.println("world = " + this.getWorld().getServer());
 			System.out.println("player = " + player);
 			System.out.println("pos = " + this.getPos());
-			createShake(this.getWorld().getServer(), player, this.getPos());
+			try {
+				createShake(this.getWorld().getServer(), player, this.getPos());
+			}catch (Exception e){}
 		});
 		world.createExplosion(null, getX(), getY(), getZ(), 4, Explosion.DestructionType.NONE);
 		this.discard();
@@ -85,7 +88,7 @@ public class FallingStar extends ThrownItemEntity {
 		s.getOverworld().getPlayers(players -> players.getWorld().isChunkLoaded(new ChunkPos(player.getBlockPos()).x, new ChunkPos(player.getBlockPos()).z)).forEach(players -> {
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			new PositionedScreenshakePacket(34, Vec3d.ofCenter(player.getBlockPos()),
-				80f, 0.3f, 55f, Easing.CIRC_IN).setIntensity(finalIntensity / 40).setEasing(Easing.CIRC_OUT, Easing.CIRC_IN).write(buf);
+				80f, 0.3f, 55f, Easing.CIRC_IN).setIntensity(finalIntensity / 120).setEasing(Easing.CIRC_OUT, Easing.CIRC_IN).write(buf);
 			ServerPlayNetworking.send(players, PositionedScreenshakePacket.ID, buf);
 
 		});
@@ -110,7 +113,7 @@ public class FallingStar extends ThrownItemEntity {
 				.setLifetime(50)
 				.setSpin(i % 2 == 0 ? (float)1/spinSpeed : (float)-1/spinSpeed)
 				.setMotion(0.01 * (i % 2 == 0 ? -1 : 1)
-					, 0.1f ,
+					, 0f ,
 					0.01 *(i % 2 == 0 ? 1 : -1))
 				.enableNoClip()
 				.evenlySpawnAtAlignedEdges(world, pos , world.getBlockState(pos), 2)
@@ -127,7 +130,7 @@ public class FallingStar extends ThrownItemEntity {
 			.setScale(3)
 			.setAlpha(10)
 			.setColor(startingColor, endingColor)
-			.setLifetime(15)
+			.setLifetime(13)
 			.setMotion(this.getVelocity().getX() * 1.1, this.getVelocity().getY() * 1.3, this.getVelocity().getZ() * 1.1)
 			.enableNoClip()
 			.spawn(this.getWorld(),this.getX(), this.getY() - 2.5, this.getZ());

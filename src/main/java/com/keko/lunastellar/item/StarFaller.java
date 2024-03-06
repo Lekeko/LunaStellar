@@ -26,8 +26,8 @@ import java.util.Random;
 
 public class StarFaller extends Item {
 	//cooldown in seconds!
-	private int cooldown = 10;
-	int distance = 70;
+	private int cooldown = 3;
+	int distance = 110;
 
 
 	public StarFaller(Settings settings) {
@@ -37,14 +37,14 @@ public class StarFaller extends Item {
 	public static void CreateShake(MinecraftServer s, PlayerEntity player, Position pos){
 		float intensity = (float) (Math.abs(player.getX() - pos.getX()) + Math.abs(player.getY() - pos.getY())  + Math.abs(player.getZ() - pos.getZ()));
 
-		if (intensity < 200){
-			intensity = (float)(200 - intensity);
+		if (intensity < 130){
+			intensity = (float)(130 - intensity);
 		}else intensity = 0f;
 		float finalIntensity = intensity;
 		s.getOverworld().getPlayers(players -> players.getWorld().isChunkLoaded(new ChunkPos(player.getBlockPos()).x, new ChunkPos(player.getBlockPos()).z)).forEach(players -> {
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			new PositionedScreenshakePacket(34, Vec3d.ofCenter(player.getBlockPos()),
-				80f, 0.3f, 55f, Easing.CIRC_IN).setIntensity(finalIntensity / 40).setEasing(Easing.CIRC_OUT, Easing.CIRC_IN).write(buf);
+				80f, 0.3f, 55f, Easing.CIRC_IN).setIntensity(finalIntensity).setEasing(Easing.CIRC_OUT, Easing.CIRC_IN).write(buf);
 			ServerPlayNetworking.send(players, PositionedScreenshakePacket.ID, buf);
 
 		});
@@ -72,16 +72,10 @@ public class StarFaller extends Item {
 						targetedBlock.getZ()));
 					if (!blockState.isOf(Blocks.AIR)){
 						doTheThing(world, user,new BlockPos( targetedBlock.getX(), targetedBlock.getY() - i, targetedBlock.getZ()) );
-						doTheThing(world, user,new BlockPos( targetedBlock.getX(), targetedBlock.getY() - i, targetedBlock.getZ()) );
-						doTheThing(world, user,new BlockPos( targetedBlock.getX(), targetedBlock.getY() - i, targetedBlock.getZ()) );
-						doTheThing(world, user,new BlockPos( targetedBlock.getX(), targetedBlock.getY() - i, targetedBlock.getZ()) );
 						break;
 					}
 				}
 			}else {
-				doTheThing(world, user, targetedBlock);
-				doTheThing(world, user, targetedBlock);
-				doTheThing(world, user, targetedBlock);
 				doTheThing(world, user, targetedBlock);
 			}
 
