@@ -18,6 +18,7 @@ public class LunaStellarClient implements ClientModInitializer {
 	public void onInitializeClient(ModContainer mod) {
 		EntityRendererRegistry.register(ModEntities.CRYSTAL_PEBBLE_PROJECTILE, FlyingItemEntityRenderer::new);
 		EntityRendererRegistry.register(ModEntities.FALLING_STAR, FlyingItemEntityRenderer::new);
+		EntityRendererRegistry.register(ModEntities.TRACKING_STAR, FlyingItemEntityRenderer::new);
 		StarExplosion.registerFactories();
 		ParticleFactoryRegistry.getInstance().register(StarExplosion.STAR_EXPLOSION, LodestoneParticleType.Factory::new);
 	}

@@ -1,6 +1,7 @@
 package com.keko.lunastellar.item;
 
 import com.keko.lunastellar.entities.FallingStar;
+import com.keko.lunastellar.helpers.Directional;
 import com.sammy.lodestone.network.screenshake.PositionedScreenshakePacket;
 import com.sammy.lodestone.systems.rendering.particle.Easing;
 import io.netty.buffer.Unpooled;
@@ -60,7 +61,7 @@ public class StarFaller extends Item {
 		BlockState blockState;
 		user.getItemCooldownManager().set(this, 20 * cooldown);
 			Vec3d direction = user.getRotationVec(1.0F);
-			targetedBlock = rayChastHitBlock(world, user, direction, distance);
+			targetedBlock = Directional.rayChastHitBlock(world, user, direction, distance);
 			blockState = world.getBlockState(targetedBlock);
 		//world.playSound((PlayerEntity)null, user.getX(), user.getY(), user.getZ(), SoundEvents.BLOCK_BEACON_ACTIVATE, SoundCategory.NEUTRAL, 1.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
 		world.playSound((PlayerEntity)null, user.getX(), user.getY(), user.getZ(), SoundEvents.BLOCK_BEACON_POWER_SELECT, SoundCategory.NEUTRAL, 1.5F, 1.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
@@ -97,34 +98,8 @@ public class StarFaller extends Item {
 					blockPos.getZ() + zOffset);
 				fallingStar.setVelocity((double) -xOffset / 15, -5, (double) -zOffset / 15);
 				fallingStar.setNoGravity(true);
-				System.out.println("Spawned main at : " + (int)(blockPos.getX() + xOffset) + " " + blockPos.getY() + " " + (int)(blockPos.getZ() + zOffset));
 				world.spawnEntity(fallingStar);
 
 		}
-	}
-
-
-
-
-
-	private BlockPos rayChastHitBlock(World world, PlayerEntity player, Vec3d direction , int distance){
-		for (int i = 1; i < distance; i++) {
-			BlockState blockState = world.getBlockState( new BlockPos(
-				direction.getX() * i + player.getX(),
-				direction.getY() * i + player.getY() + 2 ,
-				direction.getZ() * i + player.getZ() ));
-			if (!blockState.isOf(Blocks.AIR)){
-				return new BlockPos(direction.getX() * i + player.getX(),
-					direction.getY() * i + player.getY() + 2 ,
-					direction.getZ() * i + player.getZ());
-			}
-
-			if (blockState.isOf(Blocks.AIR) && i == distance - 1){
-				return new BlockPos(direction.getX() * i + player.getX(),
-					direction.getY() * i + player.getY() + 2 ,
-					direction.getZ() * i + player.getZ());
-			}
-		}
-		return null;
 	}
 }

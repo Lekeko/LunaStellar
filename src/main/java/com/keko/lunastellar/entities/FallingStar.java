@@ -56,6 +56,26 @@ public class FallingStar extends ThrownItemEntity {
 		createStarEffect();
 		createStarEffect();
 		createStarEffect();
+		Color startingColor = new Color(229, 85, 255, 255);
+		Color endingColor = new Color(240, 215, 255, 255);
+		ParticleBuilders.create(StarExplosion.STAR_EXPLOSION)
+			.setScale(2)
+			.setColor(startingColor, endingColor)
+			.setLifetime(9)
+			.enableNoClip()
+			.spawn(this.getWorld(),
+				this.getX(),
+				this.getY(),
+				this.getZ());
+		ParticleBuilders.create(StarExplosion.STAR_EXPLOSION)
+			.setScale(2)
+			.setColor(startingColor, endingColor)
+			.setLifetime(9)
+			.enableNoClip()
+			.spawn(this.getWorld(),
+				this.getX(),
+				this.getY(),
+				this.getZ());
 		super.tick();
 	}
 
@@ -66,9 +86,6 @@ public class FallingStar extends ThrownItemEntity {
 			,this.getX() - radius, this.getY() - radius, this.getZ() - radius);
 
 		this.getWorld().getEntitiesByClass(PlayerEntity.class, boundingBox, playerEntity -> true).forEach(player -> {
-			System.out.println("world = " + this.getWorld().getServer());
-			System.out.println("player = " + player);
-			System.out.println("pos = " + this.getPos());
 			try {
 				createShake(this.getWorld().getServer(), player, this.getPos());
 			}catch (Exception e){}
@@ -87,8 +104,7 @@ public class FallingStar extends ThrownItemEntity {
 		float finalIntensity = intensity;
 		s.getOverworld().getPlayers(players -> players.getWorld().isChunkLoaded(new ChunkPos(player.getBlockPos()).x, new ChunkPos(player.getBlockPos()).z)).forEach(players -> {
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			new PositionedScreenshakePacket(34, Vec3d.ofCenter(player.getBlockPos()),
-				80f, 0.3f, 55f, Easing.CIRC_IN).setIntensity(finalIntensity / 120).setEasing(Easing.CIRC_OUT, Easing.CIRC_IN).write(buf);
+			new PositionedScreenshakePacket(70, Vec3d.ofCenter(player.getBlockPos()),20f, 1.3f, 55f, Easing.CIRC_IN).setIntensity( finalIntensity / 120, 0f).setEasing(Easing.CIRC_OUT, Easing.CIRC_IN).write(buf);
 			ServerPlayNetworking.send(players, PositionedScreenshakePacket.ID, buf);
 
 		});
@@ -133,7 +149,7 @@ public class FallingStar extends ThrownItemEntity {
 			.setLifetime(13)
 			.setMotion(this.getVelocity().getX() * 1.1, this.getVelocity().getY() * 1.3, this.getVelocity().getZ() * 1.1)
 			.enableNoClip()
-			.spawn(this.getWorld(),this.getX(), this.getY() - 2.5, this.getZ());
+			.spawn(this.getWorld(),this.getX(), this.getY() - 2, this.getZ());
 		createCircleEffect(this.getX(), this.getY(), this.getZ(), world);
 
 	}

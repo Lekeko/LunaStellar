@@ -53,7 +53,6 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 	protected void onEntityHit(EntityHitResult entityHitResult) {
 		super.onEntityHit(entityHitResult);
 		if (!(entityHitResult.getEntity() == this.getOwner())) {
-			System.out.println("cuaie");
 			Entity entity = entityHitResult.getEntity();
 			entity.damage(DamageSource.thrownProjectile(this, this.getOwner()), damage);
 			world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(),
@@ -64,10 +63,13 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 
 
 	private void createParticleEffect() {
+
+
+
 		Color startingColor = new Color(179, 85, 255, 255);
-		Color endingColor = new Color(42, 0, 255, 163);
-		for (int i = 0; i < 3; i++)
-			ParticleBuilders.create(LodestoneParticles.SMOKE_PARTICLE)
+		Color endingColor = new Color(242, 223, 255, 255);
+		for (int i = 0; i < 2; i++)
+			ParticleBuilders.create(LodestoneParticles.SPARKLE_PARTICLE)
 			.setScale(0, 1)
 			.setColor(startingColor, endingColor)
 			.setLifetime(5)
