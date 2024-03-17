@@ -17,7 +17,7 @@ public class ModEntities {
 
 	public static final EntityType<TrackingStar> TRACKING_STAR = Registry.register(Registry.ENTITY_TYPE,
 		new Identifier(LunaStellar.MOD_ID, "tracking_star"), QuiltEntityTypeBuilder.<TrackingStar>create(SpawnGroup.MISC, TrackingStar::new)
-			.setDimensions(EntityDimensions.fixed(0.8f, 0.8f)).build());
+			.setDimensions(EntityDimensions.fixed(0.1f, 0.1f)).build());
 
 
 	public static final EntityType<FallingStar> FALLING_STAR = Registry.register(Registry.ENTITY_TYPE,

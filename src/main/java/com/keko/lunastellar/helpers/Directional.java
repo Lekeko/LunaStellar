@@ -12,7 +12,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public abstract class Directional {
-	public static BlockPos rayChastHitBlock(World world, PlayerEntity player, Vec3d direction , int distance){
+	public static BlockPos rayChastHitBlock(World world, Entity player, Vec3d direction , int distance){
 		for (int i = 1; i < distance; i++) {
 			Box box = new Box(new BlockPos(
 				direction.getX() * i + player.getX(),

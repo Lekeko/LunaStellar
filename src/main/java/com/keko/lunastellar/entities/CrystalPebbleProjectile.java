@@ -65,12 +65,11 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 	private void createParticleEffect() {
 
 
-
 		Color startingColor = new Color(179, 85, 255, 255);
 		Color endingColor = new Color(242, 223, 255, 255);
 		for (int i = 0; i < 2; i++)
 			ParticleBuilders.create(LodestoneParticles.SPARKLE_PARTICLE)
-			.setScale(0, 1)
+			.setScale(0.4f, 1)
 			.setColor(startingColor, endingColor)
 			.setLifetime(5)
 			.addMotion(0, 0.01f, 0)
@@ -80,6 +79,8 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 	}
 	@Override
 	public void onRemoved() {
+
+
 		createParticleEffect();
 
 		super.onRemoved();
@@ -87,7 +88,10 @@ public class CrystalPebbleProjectile extends ThrownItemEntity {
 
 	@Override
 	protected void onCollision(HitResult hitResult) {
+
 		super.onCollision(hitResult);
+		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK , SoundCategory.NEUTRAL, 1.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+
 		if (!this.world.isClient) {
 			this.world.sendEntityStatus(this, (byte)3);
 			this.discard();

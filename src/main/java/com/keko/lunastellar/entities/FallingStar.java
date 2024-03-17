@@ -2,6 +2,7 @@ package com.keko.lunastellar.entities;
 
 import com.keko.lunastellar.customParticles.StarExplosion;
 import com.keko.lunastellar.item.ModItems;
+import com.sammy.lodestone.LodestoneLib;
 import com.sammy.lodestone.network.screenshake.PositionedScreenshakePacket;
 import com.sammy.lodestone.setup.LodestoneParticles;
 import com.sammy.lodestone.setup.LodestoneScreenParticles;
@@ -10,15 +11,20 @@ import com.sammy.lodestone.systems.rendering.particle.ParticleBuilders;
 import com.sammy.lodestone.systems.rendering.particle.screen.ScreenParticleType;
 import com.sammy.lodestone.systems.rendering.particle.screen.base.ScreenParticle;
 import com.sammy.lodestone.systems.rendering.particle.type.LodestoneScreenParticleType;
+import com.sammy.lodestone.systems.rendering.particle.world.GenericParticle;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.network.Packet;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.*;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
@@ -81,6 +87,13 @@ public class FallingStar extends ThrownItemEntity {
 
 	@Override
 	protected void onCollision(HitResult hitResult) {
+		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK	 , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_GENERIC_EXPLODE , SoundCategory.NEUTRAL, 3.5F, 7.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+
+		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_BEACON_POWER_SELECT , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+
 		int radius = 200;
 		Box boundingBox = new Box(this.getX() + radius, this.getY() + radius, this.getZ() + radius
 			,this.getX() - radius, this.getY() - radius, this.getZ() - radius);
@@ -90,7 +103,29 @@ public class FallingStar extends ThrownItemEntity {
 				createShake(this.getWorld().getServer(), player, this.getPos());
 			}catch (Exception e){}
 		});
-		world.createExplosion(null, getX(), getY(), getZ(), 4, Explosion.DestructionType.NONE);
+
+		int radiusd = 7;Random random1 = new Random();
+		for (int x = -radiusd; x <= radiusd; x++) {
+			for (int y = -radiusd; y <= radiusd; y++) {
+				for (int z = -radiusd; z <= radiusd; z++) {
+					int checker = x * x + y * y + z * z;
+					if (checker <= radiusd * radiusd) {
+
+
+						BlockPos blockPos = new BlockPos(this.getPos().getX() + x, this.getPos().getY() + y, this.getPos().getZ() + z);
+						Box box = new Box(blockPos);
+						for (Entity entity : world.getOtherEntities(null, box)) {
+							if (!(entity instanceof ItemEntity))
+								if (world.getRegistryKey() == World.END)
+									entity.damage(DamageSource.MAGIC, 30);
+								else entity.damage(DamageSource.MAGIC, 18);
+						}
+					}
+
+				}
+			}
+		}
+
 		this.discard();
 		super.onCollision(hitResult);
 	}
@@ -124,7 +159,7 @@ public class FallingStar extends ThrownItemEntity {
 		for (int i = 0; i < 15; i++){
 			pos = new BlockPos(getX() + random1.nextInt(2) - 1 , getY() + random1.nextInt(2) - 1 , getZ() + random1.nextInt(2) - 1 );
 			ParticleBuilders.create(StarExplosion.STAR_EXPLOSION)
-				.setScale(4, 6, (float)(10 - i * 0.5))
+				.setScale(8, 10)
 				.setColor(startingColor, endingColor)
 				.setLifetime(50)
 				.setSpin(i % 2 == 0 ? (float)1/spinSpeed : (float)-1/spinSpeed)
@@ -146,7 +181,7 @@ public class FallingStar extends ThrownItemEntity {
 			.setScale(3)
 			.setAlpha(10)
 			.setColor(startingColor, endingColor)
-			.setLifetime(13)
+			.setLifetime(16)
 			.setMotion(this.getVelocity().getX() * 1.1, this.getVelocity().getY() * 1.3, this.getVelocity().getZ() * 1.1)
 			.enableNoClip()
 			.spawn(this.getWorld(),this.getX(), this.getY() - 2, this.getZ());

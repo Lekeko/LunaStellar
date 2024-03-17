@@ -2,7 +2,6 @@ package com.keko.lunastellar;
 
 import com.keko.lunastellar.customParticles.StarExplosion;
 import com.keko.lunastellar.entities.ModEntities;
-import com.sammy.lodestone.setup.LodestoneParticles;
 import com.sammy.lodestone.systems.rendering.particle.type.LodestoneParticleType;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;

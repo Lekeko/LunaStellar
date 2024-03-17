@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " # ",
+    "LAL",
+    "UUU"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "L": {
+      "item": "lunastellar:crystal_pebble"
+    },
+    "A": {
+      "item": "lunastellar:infused_crystal"
+    },
+    "U": {
+      "item": "minecraft:amethyst_block"
+    }
+  },
+  "result": {
+    "item": "lunastellar:crystal_campfire"
+  }
+}

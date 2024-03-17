@@ -1,40 +1,35 @@
 package com.keko.lunastellar.entities;
 
-import com.mojang.datafixers.kinds.IdF;
-import com.sammy.lodestone.network.screenshake.PositionedScreenshakePacket;
+import com.keko.lunastellar.helpers.InvSearch;
+import com.keko.lunastellar.item.ModItems;
 import com.sammy.lodestone.setup.LodestoneParticles;
-import com.sammy.lodestone.systems.rendering.particle.Easing;
 import com.sammy.lodestone.systems.rendering.particle.ParticleBuilders;
-import io.netty.buffer.Unpooled;
+import com.sammy.lodestone.systems.rendering.particle.type.LodestoneParticleType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
-import org.quiltmc.qsl.lifecycle.api.event.ServerTickEvents;
-import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
 
 import java.awt.*;
 import java.util.Random;
@@ -42,7 +37,10 @@ import java.util.Random;
 public class TrackingStar extends ThrownItemEntity {
 	BlockPos target;
 	int i = 2;
-	double speed = 2;
+	double speed = 3.6;
+	private  Color startingColor = new Color(237, 0, 255, 255);
+	private  Color endingColor = Color.WHITE;
+
 
 
 	public TrackingStar(EntityType<? extends ThrownItemEntity> entityType, World world) {
@@ -50,9 +48,12 @@ public class TrackingStar extends ThrownItemEntity {
 		this.target = null;
 	}
 
-	public TrackingStar(LivingEntity livingEntity, World world, BlockPos target){
-		super(ModEntities.TRACKING_STAR, livingEntity, world);
 
+	public TrackingStar(LivingEntity livingEntity, World world, BlockPos target, Color c1, Color c2){
+		super(ModEntities.TRACKING_STAR, livingEntity, world);
+		if (c1 != null && c2 != null){
+		startingColor = c1;
+		endingColor = c2;}
 		this.target = target;
 	}
 
@@ -60,26 +61,16 @@ public class TrackingStar extends ThrownItemEntity {
 	@Override
 	public void tick() {
 		i--;
-		Color startingColor = new Color(164, 0, 255, 255);
-		Color endingColor = new Color(255, 255, 255, 255);
+		createParticle(LodestoneParticles.SPARKLE_PARTICLE, 1, 9, new Vec3d(0, 0, 0), this.getX(), this.getY(), this.getZ());
 
-		ParticleBuilders.create(LodestoneParticles.SPARKLE_PARTICLE)
-			.setScale(1)
-			.setColor(startingColor, endingColor)
-			.setLifetime(9)
-			.enableNoClip()
-			.spawn(this.getWorld(),
-				this.getX(),
-				this.getY(),
-				this.getZ());
-		if (testTime <= 0){
-			this.discard();
-		}
-		if (i < 0)
-			goToTarget();
+		if (testTime <= 0) this.discard();
+		if (i < 0) goToTarget();
+
+
 		testTime--;
 		super.tick();
 	}
+
 	private void goToTarget() {
 		if (target != null) {
 			i = 1000;
@@ -135,19 +126,8 @@ public class TrackingStar extends ThrownItemEntity {
 		super.onRemoved();
 	}
 
-	private void createSound(double x, double y, double z) {
-		world.playSound((PlayerEntity)null, x, y, z, SoundEvents.BLOCK_BEACON_AMBIENT , SoundCategory.NEUTRAL, 0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-		world.playSound((PlayerEntity)null,x, y, z, SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK , SoundCategory.NEUTRAL, 0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-	}
-
 	private void createStarBoom(double centerx, double centery, double centerz ) {
-		ParticleBuilders.create(LodestoneParticles.STAR_PARTICLE)
-			.disableForcedMotion()
-			.setColor(new Color(237, 0, 255, 255), new Color(255, 255, 255, 255))
-			.setScale(1, 20)
-			.setLifetime(50)
-			.enableNoClip()
-			.spawn(world, centerx, centery, centerz);
+		createParticle(LodestoneParticles.STAR_PARTICLE, 1, 20 , 50, new Vec3d(0,0,0), centerx, centery, centerz);
 
 			int radius = 7;Random random1 = new Random();
 			for (int x = -radius; x <= radius; x++) {
@@ -162,26 +142,19 @@ public class TrackingStar extends ThrownItemEntity {
 							Box box = new Box(blockPos);
 							for (Entity entity : world.getOtherEntities(null, box)){
 								if (!(entity instanceof ItemEntity))
-									entity.damage(DamageSource.MAGIC, 5);
+									if (world.getRegistryKey() == World.END)
+										entity.damage(DamageSource.MAGIC, 19	);
+									else
+										entity.damage(DamageSource.MAGIC, 9	);
 							}
 
-								Color startingColor = new Color(237, 0, 255, 255);
-								Color endingColor = new Color(255, 255, 255, 255);
 								if (chance > 99){
 									if(random1.nextInt(100)+ 1> 50){
 										startingColor = endingColor;
 									}
 
 
-
-								ParticleBuilders.create(LodestoneParticles.SPARKLE_PARTICLE)
-									.disableForcedMotion()
-									.setColor(startingColor, endingColor)
-									.setScale(1)
-									.setLifetime(20)
-									.addMotion(x/1.5, y/1.5, z/1.5)
-									.enableNoClip()
-									.spawn(world, x + centerx, y+  centery, centerz+ z);
+								createParticle(LodestoneParticles.SPARKLE_PARTICLE, 1, 20, new Vec3d(x/1.5, y/1.5, z/1.5), x + centerx, y+  centery, centerz+ z);
 							}
 						}
 
@@ -192,9 +165,41 @@ public class TrackingStar extends ThrownItemEntity {
 		}this.discard();
 	}
 
+	public void createParticle(LodestoneParticleType particles, int scale, int lifeTime, Vec3d motion, double x, double y, double z){
+		try {
+			ParticleBuilders.create(particles)
+				.disableForcedMotion()
+				.setColor(startingColor, endingColor)
+				.setScale(scale)
+				.setLifetime(lifeTime)
+				.addMotion(motion.getX(), motion.getY(), motion.getZ())
+				.enableNoClip()
+				.spawn(world, x, y, z);
+		}catch (Exception ignored){}
+	}
+
+	public void createParticle(LodestoneParticleType particles, int scale1, int scale2, int lifeTime, Vec3d motion, double x, double y, double z){
+
+		try {
+			ParticleBuilders.create(particles)
+				.disableForcedMotion()
+				.setColor(startingColor, endingColor)
+				.setScale(scale1, scale2)
+				.setLifetime(lifeTime)
+				.addMotion(motion.getX(), motion.getY(), motion.getZ())
+				.enableNoClip()
+				.spawn(world, x, y, z);
+		}catch (Exception e){}
+	}
+
 	@Override
 	public Packet<?> createSpawnPacket() {
 		return new EntitySpawnS2CPacket(this);
+	}
+
+	@Override
+	public void readNbt(NbtCompound nbt) {
+		super.readNbt(nbt);
 	}
 
 	@Override
@@ -203,9 +208,12 @@ public class TrackingStar extends ThrownItemEntity {
 		double y = this.getY();
 		double z = this.getZ();
 
-
+		world.playSound((PlayerEntity)null, x, y, z, SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+		world.playSound((PlayerEntity)null, x, y, z, SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK	 , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+		world.playSound((PlayerEntity)null, x, y, z, SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
 		world.playSound((PlayerEntity)null, x, y, z, SoundEvents.BLOCK_BEACON_ACTIVATE , SoundCategory.NEUTRAL, 2F, 0.8F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
 		world.playSound((PlayerEntity)null,x, y, z, SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK , SoundCategory.NEUTRAL, 2F, 0.8F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+		//DONT ASK IT SOUNDS COOL TRUST
 		super.onCollision(hitResult);
 	}
 }

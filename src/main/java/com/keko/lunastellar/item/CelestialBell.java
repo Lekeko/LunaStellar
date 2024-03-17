@@ -2,6 +2,7 @@ package com.keko.lunastellar.item;
 
 import com.keko.lunastellar.entities.TrackingStar;
 import com.keko.lunastellar.helpers.Directional;
+import com.keko.lunastellar.helpers.InvSearch;
 import com.sun.source.tree.LiteralTree;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -19,77 +20,106 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.awt.*;
+
 public class CelestialBell extends Item {
 	int distance = 200;
 	double velocityForLeftX = 0.13;
 	double velocityForRightX = 0.13;
+
 
 	public CelestialBell(Settings settings) {
 		super(settings.maxCount(1));
 	}
 
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+		Color c1 = new Color(237, 0, 255, 255);
+		Color c2 = new Color(255, 255, 255, 255);
 		((PlayerEntity)user).getItemCooldownManager().set(this, 10);
-		boolean foundAmmo = false;
-		for (ItemStack stack : user.getInventory().main){
-			if (stack.getItem() instanceof InfusedCrystal){
-				foundAmmo = true;
-				if (!user.isCreative()){
-					stack.decrement(1);
-				}
+
+		ItemStack stack = InvSearch.hasItemInInv(user, ModItems.INFUSED_CRYSTAL);
+
+		if (stack != null){
+			if (!user.isCreative()){
+				stack.decrement(1);
 			}
 		}
 
-		if (!foundAmmo){
-			user.damage(DamageSource.MAGIC, 2);
+		if (user.getOffHandStack().getItem() instanceof InfusedCrystal ){
+			if (!user.isCreative()){
+				user.getOffHandStack().decrement(1);
+			}
 		}
+
+		if (stack == null && !(user.getOffHandStack().getItem() instanceof InfusedCrystal ))
+			 user.damage(DamageSource.MAGIC, 2);
+
 
 		ItemStack itemStack = user.getStackInHand(hand);
 		world.playSound((PlayerEntity)null, user.getX(), user.getY(), user.getZ(), SoundEvents.BLOCK_NOTE_BLOCK_BELL , SoundCategory.NEUTRAL, 0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
 		world.playSound((PlayerEntity)null, user.getX(), user.getY(), user.getZ(), SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK , SoundCategory.NEUTRAL, 0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-		BlockPos pos = Directional.rayChastHitBlock(world, user, user.getRotationVec(1f), distance);
-		pos = new BlockPos(pos.getX(), pos.getY()+1, pos.getZ());
-		BlockState blockState = world.getBlockState(pos);
-		if (!world.isClient)
-			doTheOtherThing(world, user, pos);
+		if (!world.isClient){
+			BlockPos pos = Directional.rayChastHitBlock(world, user, user.getRotationVec(1f), distance);
+			assert pos != null;
+			pos = new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ());
+			BlockState blockState = world.getBlockState(pos);
+			doTheOtherThing(world, user, pos ,c1 ,c2);
+		}
+
 
 		return TypedActionResult.success(itemStack, world.isClient());
 	}
 
-	private void doTheOtherThing(World world, PlayerEntity user, BlockPos pos) {
-		TrackingStar trackingStarLeft = new TrackingStar(user, world, pos);
-		TrackingStar trackingStarRight = new TrackingStar(user, world, pos);
-		double xOffset = 3.0;
-		double zOffset = 3.0;
+	private void doTheOtherThing(World world, PlayerEntity user, BlockPos pos, Color c1, Color c2) {
+			System.out.println(c1);
+			TrackingStar trackingStarLeft = new TrackingStar(user, world, pos, c1, c2);
+			TrackingStar trackingStarRight = new TrackingStar(user, world, pos, c1, c2);
+			double xOffset = 3.0;
+			double zOffset = 3.0;
 
-		Vec3d playerPos = user.getPos();
-		float playerYaw = user.getYaw();
+			Vec3d playerPos = user.getPos();
+			float playerYaw = user.getYaw();
 
-		double leftX = playerPos.x + xOffset * Math.cos(Math.toRadians(playerYaw)) - zOffset * Math.sin(Math.toRadians(playerYaw));
-		double leftZ = playerPos.z + xOffset * Math.sin(Math.toRadians(playerYaw)) + zOffset * Math.cos(Math.toRadians(playerYaw));
+			double leftX = playerPos.x + xOffset * Math.cos(Math.toRadians(playerYaw)) - zOffset * Math.sin(Math.toRadians(playerYaw));
+			double leftZ = playerPos.z + xOffset * Math.sin(Math.toRadians(playerYaw)) + zOffset * Math.cos(Math.toRadians(playerYaw));
 
-		double rightX = playerPos.x - xOffset * Math.cos(Math.toRadians(playerYaw)) - zOffset * Math.sin(Math.toRadians(playerYaw));
-		double rightZ = playerPos.z - xOffset * Math.sin(Math.toRadians(playerYaw)) + zOffset * Math.cos(Math.toRadians(playerYaw));
+			double rightX = playerPos.x - xOffset * Math.cos(Math.toRadians(playerYaw)) - zOffset * Math.sin(Math.toRadians(playerYaw));
+			double rightZ = playerPos.z - xOffset * Math.sin(Math.toRadians(playerYaw)) + zOffset * Math.cos(Math.toRadians(playerYaw));
 
-		double motionLeftX = leftX - playerPos.x ;
-		double motionLeftZ = leftZ - playerPos.z;
+			double cleftX = playerPos.x + (xOffset + xOffset) * Math.cos(Math.toRadians(playerYaw)) - zOffset * Math.sin(Math.toRadians(playerYaw));
+			double cleftZ = playerPos.z + (xOffset + xOffset) * Math.sin(Math.toRadians(playerYaw)) + zOffset * Math.cos(Math.toRadians(playerYaw));
 
-		double motionRightX = rightX - playerPos.x;
-		double motionRightZ = rightZ - playerPos.z;
+			double crightX = playerPos.x - (xOffset + xOffset) * Math.cos(Math.toRadians(playerYaw)) - zOffset * Math.sin(Math.toRadians(playerYaw));
+			double crightZ = playerPos.z - (xOffset + xOffset) * Math.sin(Math.toRadians(playerYaw)) + zOffset * Math.cos(Math.toRadians(playerYaw));
 
-		trackingStarLeft.setPos(leftX, user.getY(), leftZ);
-		trackingStarRight.setPos(rightX, user.getY(), rightZ);
+			double motionLeftX = leftX - playerPos.x;
+			double motionLeftZ = leftZ - playerPos.z;
 
-		trackingStarLeft.setNoGravity(true);
-		trackingStarRight.setNoGravity(true);
+			double motionRightX = rightX - playerPos.x;
+			double motionRightZ = rightZ - playerPos.z;
 
+			trackingStarLeft.setPos(leftX, user.getY(), leftZ);
+			trackingStarRight.setPos(rightX, user.getY(), rightZ);
 
-		trackingStarLeft.setVelocity(motionLeftX, user.getRotationVec(2).y + 2, motionLeftZ);
-		trackingStarRight.setVelocity(motionRightX,  user.getRotationVec(2).y +  2, motionRightZ);
+			trackingStarLeft.setNoGravity(true);
+			trackingStarRight.setNoGravity(true);
 
-		world.spawnEntity(trackingStarLeft);
-		world.spawnEntity(trackingStarRight);
+			BlockPos pos1 = Directional.rayChastHitBlock(world, trackingStarLeft, new Vec3d(motionLeftX, user.getRotationVec(1).y, motionLeftZ), 6);
+			BlockPos pos2 = Directional.rayChastHitBlock(world, trackingStarRight, new Vec3d(motionRightX, user.getRotationVec(1).y, motionRightZ), 6);
 
+			BlockState state1 = world.getBlockState(pos1);
+			BlockState state2 = world.getBlockState(pos2);
+
+			if (state1.isOf(Blocks.AIR) && state2.isOf(Blocks.AIR)){
+				trackingStarLeft.setVelocity(motionLeftX, user.getRotationVec(2).y + 2, motionLeftZ);
+				trackingStarRight.setVelocity(motionRightX, user.getRotationVec(2).y + 2, motionRightZ);
+			}else {
+				trackingStarLeft.setPos(leftX, user.getY() + 2, leftZ);
+				trackingStarRight.setPos(rightX, user.getY() + 2, rightZ);
+			}
+
+			world.spawnEntity(trackingStarLeft);
+			world.spawnEntity(trackingStarRight);
 
 
 	}
