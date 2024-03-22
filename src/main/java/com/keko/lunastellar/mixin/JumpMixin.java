@@ -5,7 +5,9 @@ import com.keko.lunastellar.enchantments.CrystalLeap;
 import com.keko.lunastellar.enchantments.ModEnch;
 import com.keko.lunastellar.particles.ModParticles;
 import com.sammy.lodestone.setup.LodestoneParticles;
+import com.sammy.lodestone.setup.LodestoneScreenParticles;
 import com.sammy.lodestone.systems.rendering.particle.ParticleBuilders;
+import com.sammy.lodestone.systems.rendering.particle.screen.ScreenParticleEffect;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -37,7 +39,6 @@ public abstract class JumpMixin {
 		ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
 		if (player.input.jumping) {
 			jump++;
-			System.out.println(jump);
 		} else jump = 0;
 
 		if (player.isOnGround() || player.isClimbing()) {
@@ -57,6 +58,8 @@ public abstract class JumpMixin {
 					Color endingColor = new Color(251, 235, 255);
 					player.world.playSound((PlayerEntity)player, centerx, centery, centerz, SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK , SoundCategory.NEUTRAL, 2.5F, 2.4F / (player.world.getRandom().nextFloat() * 0.4F + 0.8F));
 					player.world.playSound((PlayerEntity)player, centerx, centery, centerz, SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK	 , SoundCategory.NEUTRAL, 2.5F, 2.4F / (player.world.getRandom().nextFloat() * 0.4F + 0.8F));
+
+
 					ParticleBuilders.create(LodestoneParticles.TWINKLE_PARTICLE)
 						.disableForcedMotion()
 						.setColor(startingColor, endingColor)

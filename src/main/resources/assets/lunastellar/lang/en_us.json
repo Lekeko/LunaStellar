@@ -1,10 +1,9 @@
 {
-  "key.lunastellar": "Luna Key",
-  "key.lunastellar.crystalleap": "Crystal leap key",
   "block.lunastellar.crystal_campfire" : "Crystal Campfire",
-  "enchantment.lunastellar.crystal_leap" : "Crystal leap",
-  "item.lunastellar.star_faller" : "Star faller",
-  "item.lunastellar.celestial_bell" : "Celestial bell",
-  "item.lunastellar.infused_crystal" : "Infused crystal",
-  "item.lunastellar.crystal_pebble" : "Crystal pebble"
+  "enchantment.lunastellar.crystal_leap" : "Crystal Leap",
+  "item.lunastellar.star_faller" : "Star Faller",
+  "item.lunastellar.celestial_bell" : "Celestial Bell",
+  "item.lunastellar.infused_crystal" : "Infused Crystal",
+  "item.lunastellar.crystal_pebble" : "Crystal Pebble",
+  "item.lunastellar.crystal_magnet" : "Crystal Magnet"
 }

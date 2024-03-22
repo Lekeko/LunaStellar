@@ -11,7 +11,9 @@ import net.fabricmc.fabric.api.loot.v1.event.LootTableLoadingCallback;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.EnchantmentLevelEntry;
 import net.minecraft.enchantment.Enchantments;
+import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.loot.LootPool;
@@ -77,13 +79,17 @@ public class LunaStellar implements ModInitializer {
 
 		LootTableLoadingCallback.EVENT.register((resourceManager, lootManager, id, supplier, setter) -> {
 			if (id.equals(LootTables.ANCIENT_CITY_CHEST)) {
-				supplier.withPool(LootPool.builder()
-					.rolls(lootNumberProvider2) // Number of items to roll
-					.conditionally(RandomChanceLootCondition.builder(70f))
-					.with(ItemEntry.builder(itemStack.getItem()))
-					.build());
+				ItemStack book = new ItemStack(Items.ENCHANTED_BOOK);
+				EnchantedBookItem.addEnchantment(book, new EnchantmentLevelEntry(ModEnch.CRYSTAL_LEAP, 1));
+
+				LootPool lootPool = LootPool.builder()
+					.rolls(lootNumberProvider2)
+					.conditionally(RandomChanceLootCondition.builder(0.5f).build())
+					.with(ItemEntry.builder(ModItems.INFUSED_CRYSTAL).build()).build();
+				supplier.pool(lootPool);
 			}
 		});
+
 
 		LOGGER.info("Bow before the stars (Cringe af log ngl)", mod.metadata().name());
 		ModBlocks.registerModBlocks();

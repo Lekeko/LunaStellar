@@ -26,11 +26,12 @@ public class CelestialBell extends Item {
 	int distance = 200;
 	double velocityForLeftX = 0.13;
 	double velocityForRightX = 0.13;
-
+	private boolean dmg = false;
 
 	public CelestialBell(Settings settings) {
 		super(settings.maxCount(1));
 	}
+
 
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		Color c1 = new Color(237, 0, 255, 255);
@@ -42,18 +43,21 @@ public class CelestialBell extends Item {
 		if (stack != null){
 			if (!user.isCreative()){
 				stack.decrement(1);
+				dmg = false;
 			}
 		}
 
 		if (user.getOffHandStack().getItem() instanceof InfusedCrystal ){
 			if (!user.isCreative()){
 				user.getOffHandStack().decrement(1);
+				dmg = false;
 			}
 		}
 
-		if (stack == null && !(user.getOffHandStack().getItem() instanceof InfusedCrystal ))
-			 user.damage(DamageSource.MAGIC, 2);
-
+		if (stack == null && !(user.getOffHandStack().getItem() instanceof InfusedCrystal )) {
+			user.damage(DamageSource.MAGIC, 2);
+			dmg = true;
+		}
 
 		ItemStack itemStack = user.getStackInHand(hand);
 		world.playSound((PlayerEntity)null, user.getX(), user.getY(), user.getZ(), SoundEvents.BLOCK_NOTE_BLOCK_BELL , SoundCategory.NEUTRAL, 0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
@@ -71,9 +75,9 @@ public class CelestialBell extends Item {
 	}
 
 	private void doTheOtherThing(World world, PlayerEntity user, BlockPos pos, Color c1, Color c2) {
-			System.out.println(c1);
-			TrackingStar trackingStarLeft = new TrackingStar(user, world, pos, c1, c2);
-			TrackingStar trackingStarRight = new TrackingStar(user, world, pos, c1, c2);
+		TrackingStar trackingStarLeft = new TrackingStar(user, world, pos, c1, c2);
+		TrackingStar trackingStarRight = new TrackingStar(user, world, pos, c1, c2);
+
 			double xOffset = 3.0;
 			double zOffset = 3.0;
 
@@ -85,12 +89,6 @@ public class CelestialBell extends Item {
 
 			double rightX = playerPos.x - xOffset * Math.cos(Math.toRadians(playerYaw)) - zOffset * Math.sin(Math.toRadians(playerYaw));
 			double rightZ = playerPos.z - xOffset * Math.sin(Math.toRadians(playerYaw)) + zOffset * Math.cos(Math.toRadians(playerYaw));
-
-			double cleftX = playerPos.x + (xOffset + xOffset) * Math.cos(Math.toRadians(playerYaw)) - zOffset * Math.sin(Math.toRadians(playerYaw));
-			double cleftZ = playerPos.z + (xOffset + xOffset) * Math.sin(Math.toRadians(playerYaw)) + zOffset * Math.cos(Math.toRadians(playerYaw));
-
-			double crightX = playerPos.x - (xOffset + xOffset) * Math.cos(Math.toRadians(playerYaw)) - zOffset * Math.sin(Math.toRadians(playerYaw));
-			double crightZ = playerPos.z - (xOffset + xOffset) * Math.sin(Math.toRadians(playerYaw)) + zOffset * Math.cos(Math.toRadians(playerYaw));
 
 			double motionLeftX = leftX - playerPos.x;
 			double motionLeftZ = leftZ - playerPos.z;

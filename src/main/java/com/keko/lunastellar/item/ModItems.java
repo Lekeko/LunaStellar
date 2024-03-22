@@ -13,6 +13,7 @@ public class ModItems {
 	public static final Item STAR_FALLER = registerItem("star_faller", new StarFaller(new QuiltItemSettings().group(ItemGroup.COMBAT)));
 	public static final Item CELESTIAL_BELL = registerItem("celestial_bell", new CelestialBell(new QuiltItemSettings().group(ItemGroup.COMBAT)));
 	public static final Item INFUSED_CRYSTAL = registerItem("infused_crystal", new InfusedCrystal(new QuiltItemSettings().group(ItemGroup.MATERIALS)));
+	public static final Item CRYSTAL_MAGNET = registerItem("crystal_magnet", new CrystalMagnet(new QuiltItemSettings().group(ItemGroup.TOOLS)));
 
 	private static Item registerItem(String name , Item item){
 		return Registry.register(Registry.ITEM, new Identifier(LunaStellar.MOD_ID, name), item);

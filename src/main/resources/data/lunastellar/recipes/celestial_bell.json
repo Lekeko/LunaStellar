@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#D#",
+    "DBD",
+    "#D#"
+  ],
+  "key": {
+    "#": {
+      "item": "lunastellar:infused_crystal"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "B": {
+      "item": "minecraft:bell"
+    }
+  },
+  "result": {
+    "item" : "lunastellar:celestial_bell"
+  }
+}

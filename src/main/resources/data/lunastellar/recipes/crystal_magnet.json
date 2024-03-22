@@ -1,26 +1,28 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " # ",
-    "LAL",
-    "UUU"
+    "# A",
+    " ER",
+    "ARL"
   ],
   "key": {
     "#": {
-      "item": "minecraft:amethyst_shard"
-    },
-    "L": {
-      "item": "lunastellar:crystal_pebble"
+      "item": "minecraft:nether_star"
     },
     "A": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "E": {
+      "item": "minecraft:end_crystal"
+    },
+    "R": {
       "item": "lunastellar:infused_crystal"
     },
-    "U": {
+    "L": {
       "item": "minecraft:amethyst_block"
     }
   },
   "result": {
-    "item": "lunastellar:crystal_campfire",
-    "count": 1
+    "item": "lunastellar:crystal_magnet"
   }
 }

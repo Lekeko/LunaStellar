@@ -11,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -105,7 +106,6 @@ public class TrackingStar extends ThrownItemEntity {
 			createStarBoom(this.getX(), this.getY(), this.getZ());
 		}
 			this.discard();
-		System.out.println(entityHitResult.getEntity());
 
 		super.onEntityHit(entityHitResult);
 	}
@@ -141,6 +141,9 @@ public class TrackingStar extends ThrownItemEntity {
 							BlockPos blockPos = new BlockPos(this.getPos().getX() + x,  this.getPos().getY()  + y,  this.getPos().getZ() + z);
 							Box box = new Box(blockPos);
 							for (Entity entity : world.getOtherEntities(null, box)){
+								if (entity instanceof EnderDragonEntity){
+									entity.damage(DamageSource.player((PlayerEntity) this.getOwner()), 19 );
+								}
 								if (!(entity instanceof ItemEntity))
 									if (world.getRegistryKey() == World.END)
 										entity.damage(DamageSource.MAGIC, 19	);
