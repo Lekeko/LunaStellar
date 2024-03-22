@@ -13,7 +13,7 @@
 			"contact": {
 				"sources": "https://github.com/Lekeko/LunaStellar"
 			},
-			"icon": "assets/example_mod/icon.png"
+			"icon": "assets/lunastellar/icon.png"
 		},
 		"intermediate_mappings": "net.fabricmc:intermediary",
 		"entrypoints": {
