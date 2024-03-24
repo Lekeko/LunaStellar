@@ -10,20 +10,20 @@ import net.minecraft.util.Arm;
 
 public class CrystalLeap extends Enchantment {
 
-	protected CrystalLeap(Rarity weight, EnchantmentTarget type, EquipmentSlot[] slotTypes) {
-		super(weight, type, slotTypes);
+	protected CrystalLeap(Rarity weight, EnchantmentTarget type, EquipmentSlot... slotTypes) {
+		super(weight, EnchantmentTarget.ARMOR_FEET, slotTypes);
 	}
-
-
-	public CrystalLeap(){
-		super(Rarity.COMMON, EnchantmentTarget.ARMOR_FEET, new EquipmentSlot[]{EquipmentSlot.FEET});
+	public CrystalLeap() {
+		super(Enchantment.Rarity.UNCOMMON, EnchantmentTarget.ARMOR_FEET, new EquipmentSlot[] {EquipmentSlot.FEET, EquipmentSlot.MAINHAND});
+	}
+	@Override
+	public int getMaxLevel() {
+		return 1;
 	}
 
 	@Override
-	public boolean isAcceptableItem(ItemStack stack) {
-		if (stack.getItem() instanceof ArmorItem && stack.getItem().asItem().getName().toString().contains("Boots")){
-			return true;
-		} return false;
+	public boolean isTreasure() {
+		return  false;
 	}
 
 	@Override
@@ -36,24 +36,19 @@ public class CrystalLeap extends Enchantment {
 		return true;
 	}
 
-
 	@Override
-	public int getMinLevel() {
-		return 1;
+	public boolean isAcceptableItem(ItemStack stack) {
+		return true;
 	}
 
-	@Override
-	public int getMaxLevel() {
-		return 1;
-	}
 
 	@Override
-	public int getMaxPower(int level) {
-		return 2;
+	public int getMinPower(int level) {
+		return 12;
 	}
 
 	@Override
 	protected boolean canAccept(Enchantment other) {
-		return true;
+		return super.canAccept(other);
 	}
 }

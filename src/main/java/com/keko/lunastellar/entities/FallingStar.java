@@ -60,31 +60,36 @@ public class FallingStar extends ThrownItemEntity {
 
 		//this.setPos(this.getX(), this.getY() - speed, this.getZ());
 		if (i == 1){
-			createStartEffect(); i--;
+			if (world.isClient)  createStartEffect();
+			i--;
 		}
-		createStarEffect();
-		createStarEffect();
-		createStarEffect();
+		if (world.isClient) {
+			createStarEffect();
+			createStarEffect();
+			createStarEffect();
+		}
 		Color startingColor = new Color(229, 85, 255, 255);
 		Color endingColor = new Color(240, 215, 255, 255);
-		ParticleBuilders.create(StarExplosion.STAR_EXPLOSION)
-			.setScale(2)
-			.setColor(startingColor, endingColor)
-			.setLifetime(9)
-			.enableNoClip()
-			.spawn(this.getWorld(),
-				this.getX(),
-				this.getY(),
-				this.getZ());
-		ParticleBuilders.create(StarExplosion.STAR_EXPLOSION)
-			.setScale(2)
-			.setColor(startingColor, endingColor)
-			.setLifetime(9)
-			.enableNoClip()
-			.spawn(this.getWorld(),
-				this.getX(),
-				this.getY(),
-				this.getZ());
+		if (world.isClient) {
+			ParticleBuilders.create(StarExplosion.STAR_EXPLOSION)
+				.setScale(2)
+				.setColor(startingColor, endingColor)
+				.setLifetime(9)
+				.enableNoClip()
+				.spawn(this.getWorld(),
+					this.getX(),
+					this.getY(),
+					this.getZ());
+			ParticleBuilders.create(StarExplosion.STAR_EXPLOSION)
+				.setScale(2)
+				.setColor(startingColor, endingColor)
+				.setLifetime(9)
+				.enableNoClip()
+				.spawn(this.getWorld(),
+					this.getX(),
+					this.getY(),
+					this.getZ());
+		}
 		super.tick();
 	}
 	public static void launchPlayer(BlockPos blockPos, Entity player) {
@@ -114,22 +119,26 @@ public class FallingStar extends ThrownItemEntity {
 
 	@Override
 	protected void onCollision(HitResult hitResult) {
-		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK	 , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_GENERIC_EXPLODE , SoundCategory.NEUTRAL, 3.5F, 7.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+		if (!world.isClient) {
+			world.playSound((PlayerEntity) null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK, SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+			world.playSound((PlayerEntity) null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK, SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+			world.playSound((PlayerEntity) null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME, SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+			world.playSound((PlayerEntity) null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.NEUTRAL, 3.5F, 7.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
 
-		world.playSound((PlayerEntity)null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_BEACON_POWER_SELECT , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-
+			world.playSound((PlayerEntity) null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_BEACON_POWER_SELECT, SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+		}
 		int radius = 200;
 		Box boundingBox = new Box(this.getX() + radius, this.getY() + radius, this.getZ() + radius
 			,this.getX() - radius, this.getY() - radius, this.getZ() - radius);
 
-		this.getWorld().getEntitiesByClass(PlayerEntity.class, boundingBox, playerEntity -> true).forEach(player -> {
-			try {
-				createShake(this.getWorld().getServer(), player, this.getPos());
-			}catch (Exception e){}
-		});
+		if (world.isClient) {
+			this.getWorld().getEntitiesByClass(PlayerEntity.class, boundingBox, playerEntity -> true).forEach(player -> {
+				try {
+					createShake(this.getWorld().getServer(), player, this.getPos());
+				} catch (Exception e) {
+				}
+			});
+		}
 
 		int radiusd = 7;Random random1 = new Random();
 		for (int x = -radiusd; x <= radiusd; x++) {
@@ -141,18 +150,20 @@ public class FallingStar extends ThrownItemEntity {
 
 						BlockPos blockPos = new BlockPos(this.getPos().getX() + x, this.getPos().getY() + y, this.getPos().getZ() + z);
 						Box box = new Box(blockPos);
-						for (Entity entity : world.getOtherEntities(null, box)) {
-							if (!(entity instanceof ItemEntity)){
-								double distance = this.squaredDistanceTo(entity);
-								System.out.println("Distance = "  + distance);
-								if (entity instanceof EnderDragonEntity){
-									entity.damage(DamageSource.player((PlayerEntity) this.getOwner()), 30 );
-								}else {
-									if (world.getRegistryKey() == World.END)
-										entity.damage(DamageSource.MAGIC, (float) (30 - distance/2));
-									else entity.damage(DamageSource.MAGIC,  (float) (18 - distance/2));
-									if (!world.isClient)
-										launchPlayer(this.getBlockPos(), entity);
+						if (!world.isClient) {
+							for (Entity entity : world.getOtherEntities(null, box)) {
+								if (!(entity instanceof ItemEntity)) {
+									double distance = this.squaredDistanceTo(entity);
+									System.out.println("Distance = " + distance);
+									if (entity instanceof EnderDragonEntity) {
+										entity.damage(DamageSource.player((PlayerEntity) this.getOwner()), 30);
+									} else {
+										if (world.getRegistryKey() == World.END)
+											entity.damage(DamageSource.MAGIC, (float) (30 - distance / 3));
+										else entity.damage(DamageSource.MAGIC, (float) (18 - distance / 3));
+										if (!world.isClient)
+											launchPlayer(this.getBlockPos(), entity);
+									}
 								}
 							}
 						}
@@ -162,7 +173,9 @@ public class FallingStar extends ThrownItemEntity {
 			}
 		}
 
-		this.discard();
+		if (!world.isClient) {
+			this.discard();
+		}
 		super.onCollision(hitResult);
 	}
 
@@ -229,7 +242,7 @@ public class FallingStar extends ThrownItemEntity {
 			.setMotion(this.getVelocity().getX() * 1.1, this.getVelocity().getY() * 1.3, this.getVelocity().getZ() * 1.1)
 			.enableNoClip()
 			.spawn(this.getWorld(),this.getX(), this.getY() - 2, this.getZ());
-		createCircleEffect(this.getX(), this.getY(), this.getZ(), world);
+		if (world.isClient) createCircleEffect(this.getX(), this.getY(), this.getZ(), world);
 
 	}
 

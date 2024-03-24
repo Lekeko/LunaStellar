@@ -3,16 +3,24 @@ package com.keko.lunastellar;
 import com.keko.lunastellar.block.ModBlocks;
 import com.keko.lunastellar.customParticles.StarExplosion;
 import com.keko.lunastellar.enchantments.ModEnch;
+import com.keko.lunastellar.entities.FallingStar;
+import com.keko.lunastellar.entities.ModEntities;
 import com.keko.lunastellar.item.ModItems;
 import com.mojang.blaze3d.platform.InputUtil;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.loot.v1.event.LootTableLoadingCallback;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.EnchantmentLevelEntry;
 import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -40,6 +48,7 @@ public class LunaStellar implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("luna");
 	public static final String MOD_ID = "lunastellar";
 	private static final Identifier AMETHYST_CLUSTER_LOOT_TABLE_ID = Blocks.AMETHYST_CLUSTER.getLootTableId();
+
 	@Override
 	public void onInitialize(ModContainer mod) {
 		LootNumberProvider lootNumberProvider = new LootNumberProvider() {
@@ -85,10 +94,12 @@ public class LunaStellar implements ModInitializer {
 				LootPool lootPool = LootPool.builder()
 					.rolls(lootNumberProvider2)
 					.conditionally(RandomChanceLootCondition.builder(0.5f).build())
-					.with(ItemEntry.builder(ModItems.INFUSED_CRYSTAL).build()).build();
+					.with(ItemEntry.builder(ModItems.INFUSED_CRYSTAL))
+					.build();
 				supplier.pool(lootPool);
 			}
 		});
+
 
 
 		LOGGER.info("Bow before the stars (Cringe af log ngl)", mod.metadata().name());
@@ -96,7 +107,8 @@ public class LunaStellar implements ModInitializer {
 		ModEnch.registerModEnchantment();
 		ModItems.registerModitems();
 		StarExplosion.init();
-		StarExplosion.registerFactories();
+		ModEntities.registerModEntities();
+		//StarExplosion.registerFactories();
 	}
 
 }

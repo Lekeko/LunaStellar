@@ -61,14 +61,15 @@ public class TrackingStar extends ThrownItemEntity {
 	int testTime = 60;
 	@Override
 	public void tick() {
-		i--;
-		createParticle(LodestoneParticles.SPARKLE_PARTICLE, 1, 9, new Vec3d(0, 0, 0), this.getX(), this.getY(), this.getZ());
 
-		if (testTime <= 0) this.discard();
-		if (i < 0) goToTarget();
-
-
-		testTime--;
+		if (world.isClient)
+			createParticle(LodestoneParticles.SPARKLE_PARTICLE, 1, 9, new Vec3d(0, 0, 0), this.getX(), this.getY(), this.getZ());
+		if (!world.isClient){
+			i--;
+			if (testTime <= 0) this.discard();
+			if (i < 0) goToTarget();
+			testTime--;
+		}
 		super.tick();
 	}
 
@@ -102,19 +103,23 @@ public class TrackingStar extends ThrownItemEntity {
 
 	@Override
 	protected void onEntityHit(EntityHitResult entityHitResult) {
-		if (entityHitResult.getEntity() != this.getOwner() || (Entity)entityHitResult.getEntity() instanceof TrackingStar){
-			createStarBoom(this.getX(), this.getY(), this.getZ());
-		}
+		if (!world.isClient) {
+			if (entityHitResult.getEntity() != this.getOwner() || (Entity) entityHitResult.getEntity() instanceof TrackingStar) {
+				createStarBoom(this.getX(), this.getY(), this.getZ());
+			}
 			this.discard();
+		}
 
 		super.onEntityHit(entityHitResult);
 	}
 
 	@Override
 	protected void onBlockCollision(BlockState state) {
-		if (!state.isOf(Blocks.AIR) && !state.isOf(Blocks.GRASS) && !state.isOf(Blocks.TALL_GRASS) && !state.isOf(Blocks.WATER) && !state.isOf(Blocks.KELP)) {
-			createStarBoom(this.getX(), this.getY(), this.getZ());
+		if (!world.isClient) {
+			if (!state.isOf(Blocks.AIR) && !state.isOf(Blocks.GRASS) && !state.isOf(Blocks.TALL_GRASS) && !state.isOf(Blocks.WATER) && !state.isOf(Blocks.KELP)) {
+				createStarBoom(this.getX(), this.getY(), this.getZ());
 				this.discard();
+			}
 		}
 
 	}
@@ -127,7 +132,7 @@ public class TrackingStar extends ThrownItemEntity {
 	}
 
 	private void createStarBoom(double centerx, double centery, double centerz ) {
-		createParticle(LodestoneParticles.STAR_PARTICLE, 1, 20 , 50, new Vec3d(0,0,0), centerx, centery, centerz);
+		if (world.isClient) createParticle(LodestoneParticles.STAR_PARTICLE, 1, 20 , 50, new Vec3d(0,0,0), centerx, centery, centerz);
 
 			int radius = 7;Random random1 = new Random();
 			for (int x = -radius; x <= radius; x++) {
@@ -140,15 +145,17 @@ public class TrackingStar extends ThrownItemEntity {
 
 							BlockPos blockPos = new BlockPos(this.getPos().getX() + x,  this.getPos().getY()  + y,  this.getPos().getZ() + z);
 							Box box = new Box(blockPos);
-							for (Entity entity : world.getOtherEntities(null, box)){
-								if (entity instanceof EnderDragonEntity){
-									entity.damage(DamageSource.player((PlayerEntity) this.getOwner()), 19 );
+							if (!world.isClient) {
+								for (Entity entity : world.getOtherEntities(null, box)) {
+									if (entity instanceof EnderDragonEntity) {
+										entity.damage(DamageSource.player((PlayerEntity) this.getOwner()), 19);
+									}
+									if (!(entity instanceof ItemEntity))
+										if (world.getRegistryKey() == World.END)
+											entity.damage(DamageSource.MAGIC, 19);
+										else
+											entity.damage(DamageSource.MAGIC, 9);
 								}
-								if (!(entity instanceof ItemEntity))
-									if (world.getRegistryKey() == World.END)
-										entity.damage(DamageSource.MAGIC, 19	);
-									else
-										entity.damage(DamageSource.MAGIC, 9	);
 							}
 
 								if (chance > 99){
@@ -157,7 +164,7 @@ public class TrackingStar extends ThrownItemEntity {
 									}
 
 
-								createParticle(LodestoneParticles.SPARKLE_PARTICLE, 1, 20, new Vec3d(x/1.5, y/1.5, z/1.5), x + centerx, y+  centery, centerz+ z);
+									if (world.isClient) createParticle(LodestoneParticles.SPARKLE_PARTICLE, 1, 20, new Vec3d(x/1.5, y/1.5, z/1.5), x + centerx, y+  centery, centerz+ z);
 							}
 						}
 
@@ -207,16 +214,18 @@ public class TrackingStar extends ThrownItemEntity {
 
 	@Override
 	protected void onCollision(HitResult hitResult) {
-		double x = this.getX();
-		double y = this.getY();
-		double z = this.getZ();
+		if (!world.isClient){
+			double x = this.getX();
+			double y = this.getY();
+			double z = this.getZ();
 
-		world.playSound((PlayerEntity)null, x, y, z, SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-		world.playSound((PlayerEntity)null, x, y, z, SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK	 , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-		world.playSound((PlayerEntity)null, x, y, z, SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME , SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-		world.playSound((PlayerEntity)null, x, y, z, SoundEvents.BLOCK_BEACON_ACTIVATE , SoundCategory.NEUTRAL, 2F, 0.8F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-		world.playSound((PlayerEntity)null,x, y, z, SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK , SoundCategory.NEUTRAL, 2F, 0.8F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-		//DONT ASK IT SOUNDS COOL TRUST
-		super.onCollision(hitResult);
+			world.playSound((PlayerEntity) null, x, y, z, SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK, SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+			world.playSound((PlayerEntity) null, x, y, z, SoundEvents.BLOCK_AMETHYST_BLOCK_BREAK, SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+			world.playSound((PlayerEntity) null, x, y, z, SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME, SoundCategory.NEUTRAL, 3.5F, 2.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+			world.playSound((PlayerEntity) null, x, y, z, SoundEvents.BLOCK_BEACON_ACTIVATE, SoundCategory.NEUTRAL, 2F, 0.8F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+			world.playSound((PlayerEntity) null, x, y, z, SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK, SoundCategory.NEUTRAL, 2F, 0.8F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+			//DONT ASK IT SOUNDS COOL TRUST
+
+		}super.onCollision(hitResult);
 	}
 }

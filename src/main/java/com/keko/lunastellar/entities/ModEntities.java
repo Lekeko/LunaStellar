@@ -23,4 +23,8 @@ public class ModEntities {
 	public static final EntityType<FallingStar> FALLING_STAR = Registry.register(Registry.ENTITY_TYPE,
 		new Identifier(LunaStellar.MOD_ID, "falling_star"), QuiltEntityTypeBuilder.<FallingStar>create(SpawnGroup.MISC, FallingStar::new)
 			.setDimensions(EntityDimensions.fixed(0.1f, 0.1f)).build());
+
+	public static void registerModEntities(){
+
+	}
 }

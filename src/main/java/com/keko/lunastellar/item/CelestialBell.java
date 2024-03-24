@@ -62,13 +62,13 @@ public class CelestialBell extends Item {
 		ItemStack itemStack = user.getStackInHand(hand);
 		world.playSound((PlayerEntity)null, user.getX(), user.getY(), user.getZ(), SoundEvents.BLOCK_NOTE_BLOCK_BELL , SoundCategory.NEUTRAL, 0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
 		world.playSound((PlayerEntity)null, user.getX(), user.getY(), user.getZ(), SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK , SoundCategory.NEUTRAL, 0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
-		if (!world.isClient){
+		try {
 			BlockPos pos = Directional.rayChastHitBlock(world, user, user.getRotationVec(1f), distance);
 			assert pos != null;
 			pos = new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ());
 			BlockState blockState = world.getBlockState(pos);
-			doTheOtherThing(world, user, pos ,c1 ,c2);
-		}
+			doTheOtherThing(world, user, pos, c1, c2);
+		}catch (Exception e){}
 
 
 		return TypedActionResult.success(itemStack, world.isClient());
