@@ -1,6 +1,12 @@
 # LunaStellar
 
-Under Development -_-
+This mod uses Amethyst in a way to make your experience in Minecraft more Dynamic by adding celestial weapons and tools!
+
+How to start!
+
+    Find an Amethyst Geode
+    Mine the clusters and start following the following the recipes!
+
 
 ## License
 
